@@ -2,31 +2,16 @@ pipeline {
     agent any
 
     stages {
-
-        stage('Clone Code') {
+        stage('Build') {
             steps {
-                git 'git branch: 'main', url: 'https://github.com/srujan2023/QR.git'
-                
+                bat 'docker build -t qr-app .'
             }
         }
-
-        stage('Build Docker Image') {
+        stage('Deploy') {
             steps {
-                script {
-                    docker.build("qrapp")
-                    sh 'docker build -t qr-app .'
-                }
+                bat 'docker rm -f qr-container || true'
+                bat 'docker run -d -p 3000:3000 --name qr-container qr-app'
             }
         }
-
-        stage('Run Container') {
-            steps {
-                script {
-                    sh 'docker rm -f qr-container || true'
-                    sh 'docker run -d -p 3000:3000 --name qr-container qr-app'
-                }
-            }
-        }
-
     }
 }
